@@ -23,7 +23,7 @@ const DBconnect = async () => {
 
   try {
     await mongoose.connect(MONGODB_URI, {
-      dbName: 'NextJSAPI',
+      dbName: 'RegisterForm',
       bufferCommands: true,
     });
     console.log('MongoDB connected successfully');
