@@ -1,23 +1,36 @@
+// src/Lib/db.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
+// MongoDB connection string
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable");
 }
 
-/** Create a MongoDB connection */
-let isConnected = false;
+const DBconnect = async () => {
+  const connectionState = mongoose.connection.readyState;
 
-export const connectToDatabase = async () => {
-  if (isConnected) return;
+  if (connectionState === 1) {
+    console.log('MongoDB is already connected');
+    return;
+  }
+
+  if (connectionState === 2) {
+    console.log('MongoDB is connecting');
+    return;
+  }
 
   try {
-    const db = await mongoose.connect(MONGODB_URI);
-    isConnected = !!db.connections[0].readyState;
-    console.log("Connected to MongoDB");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    throw error;
+    await mongoose.connect(MONGODB_URI, {
+      dbName: 'NextJSAPI',
+      bufferCommands: true,
+    });
+    console.log('MongoDB connected successfully');
+  } catch (error: any) {
+    console.log('MongoDB connection error:', error);
+    throw new Error('MongoDB connection error');
   }
-};
+}
+
+export default DBconnect;

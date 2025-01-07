@@ -1,18 +1,15 @@
+// src/app/api/products/route.ts
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/Lib/db";
-import Product from "@/models/Product";
+import DBconnect from "@/Lib/db"; // Ensure the import path is correct
+import Product from "@/models/Product"; // Ensure Product model is defined properly
 
 export async function GET() {
   try {
-    // Connect to MongoDB
-    await connectToDatabase();
-
-    // Fetch all products
-    const products = await Product.find();
+    await DBconnect(); // Connect to MongoDB
+    const products = await Product.find(); // Fetch all products
     return NextResponse.json({ success: true, data: products });
   } catch (error: unknown) {
-    console.error("Error in GET:", error); // Log the error for debugging
-
+    console.error("Error in GET:", error);
     const errorMessage =
       typeof error === "object" && error !== null && "message" in error
         ? (error as Error).message
@@ -24,15 +21,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await connectToDatabase();
-    const body = await request.json();
-
-    // Create a new product
-    const newProduct = await Product.create(body);
+    await DBconnect(); // Connect to MongoDB
+    const body = await request.json(); // Get request body
+    const newProduct = await Product.create(body); // Create a new product
     return NextResponse.json({ success: true, data: newProduct });
   } catch (error: unknown) {
-    console.error("Error in POST:", error); // Log the error for debugging
-
+    console.error("Error in POST:", error);
     const errorMessage =
       typeof error === "object" && error !== null && "message" in error
         ? (error as Error).message
@@ -44,18 +38,16 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    await connectToDatabase();
-    const body = await request.json();
-    const { id, ...updates } = body;
+    await DBconnect(); // Connect to MongoDB
+    const body = await request.json(); // Get request body
+    const { id, ...updates } = body; // Destructure id and updates from body
 
-    // Update a product
-    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true });
+    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true }); // Update a product
     if (!updatedProduct) throw new Error("Product not found");
 
     return NextResponse.json({ success: true, data: updatedProduct });
   } catch (error: unknown) {
-    console.error("Error in PATCH:", error); // Log the error for debugging
-
+    console.error("Error in PATCH:", error);
     const errorMessage =
       typeof error === "object" && error !== null && "message" in error
         ? (error as Error).message
@@ -67,18 +59,16 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    await connectToDatabase();
+    await DBconnect(); // Connect to MongoDB
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const id = searchParams.get("id"); // Get product ID from URL params
 
-    // Delete a product
-    const deletedProduct = await Product.findByIdAndDelete(id);
+    const deletedProduct = await Product.findByIdAndDelete(id); // Delete a product
     if (!deletedProduct) throw new Error("Product not found");
 
     return NextResponse.json({ success: true, data: deletedProduct });
   } catch (error: unknown) {
-    console.error("Error in DELETE:", error); // Log the error for debugging
-
+    console.error("Error in DELETE:", error);
     const errorMessage =
       typeof error === "object" && error !== null && "message" in error
         ? (error as Error).message
